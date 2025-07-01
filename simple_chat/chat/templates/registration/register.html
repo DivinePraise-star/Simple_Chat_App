@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, rgba(137,247,254,0.85) 0%, rgba(102,166,255,0.85) 100%), url('{% static 'chat/chat.png' %}') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .register-container {
+            background: #fff;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+        .register-logo {
+            width: 120px;
+            margin-bottom: 0.5rem;
+        }
+        .register-tagline {
+            font-size: 1.05rem;
+            color: #ff6600;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .register-container h2 {
+            margin-bottom: 1.5rem;
+            color: #2d3a4b;
+        }
+        .register-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .register-container .field-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .register-container input[type="text"],
+        .register-container input[type="password"] {
+            padding: 0.7rem;
+            border: 1px solid #b0c4de;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+            flex: 1;
+        }
+        .register-container input[type="text"]:focus,
+        .register-container input[type="password"]:focus {
+            border: 1.5px solid #66a6ff;
+        }
+        .register-container label {
+            min-width: 120px;
+            text-align: left;
+            margin-right: 0.5rem;
+            color: #2d3a4b;
+            font-size: 0.98rem;
+        }
+        .register-container button {
+            background: linear-gradient(90deg, #66a6ff 0%, #89f7fe 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .register-container button:hover {
+            background: linear-gradient(90deg, #89f7fe 0%, #66a6ff 100%);
+        }
+        .register-container .login-link {
+            display: block;
+            margin-top: 1.2rem;
+            color: #66a6ff;
+            text-decoration: none;
+            font-size: 0.98rem;
+            transition: color 0.2s;
+        }
+        .register-container .login-link:hover {
+            color: #2d3a4b;
+        }
+        /* Hide Django form help texts and errorlists for password/username requirements */
+        .register-container .helptext,
+        .register-container .errorlist {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <img src="{% static 'chat/chatroom_logo.png' %}" alt="ChatRoom Logo" class="register-logo">
+        <div class="register-tagline">Your online Social Network</div>
+        <h2>Create Your Account</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.label == 'Password confirmation:' or field.label == 'Password confirmation' %}
+                    <div class="field-row">
+                        <label for="{{ field.id_for_label }}">Confirm Password:</label>
+                        {{ field }}
+                    </div>
+                {% else %}
+                    <div class="field-row">
+                        {{ field.label_tag }}
+                        {{ field }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button type="submit">Register</button>
+        </form>
+        <a class="login-link" href="{% url 'login' %}">Already have an account? Login</a>
+    </div>
+</body>
+</html>
