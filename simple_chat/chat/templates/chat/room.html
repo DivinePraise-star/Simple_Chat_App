@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room - {{ room_name }}</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, rgba(137,247,254,0.45) 0%, rgba(102,166,255,0.45) 100%), url("{% static 'chats.png' %}") no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .chat-container {
+            background: url("{% static 'chat.png' %}");
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            width: 400px;
+            max-width: 95vw;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+        .chat-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3a4b;
+            margin-bottom: 1rem;
+        }
+        #chat-log {
+            flex: 1;
+            background: #f4f8fb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 1.05rem;
+        }
+        #chat-message-input {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #b0c4de;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        #chat-message-submit {
+            width: 100%;
+            background: linear-gradient(90deg, #66a6ff 0%, #89f7fe 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #chat-message-submit:hover {
+            background: linear-gradient(90deg, #89f7fe 0%, #66a6ff 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">Room: {{ room_name }}</div>
+        <div id="chat-log">
+            {% for message in messages %}
+                <div><strong>{{ message.user.username }}:</strong> {{ message.content }}</div>
+            {% endfor %}
+        </div>
+        <input id="chat-message-input" type="text" placeholder="Type your message here..." autocomplete="off" />
+        <button id="chat-message-submit">Send</button>
+    </div>
+    <script>
+        const roomName = "{{ room_name }}";
+        const chatSocket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+            + window.location.host
+            + '/ws/chat/' + roomName + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const chatLog = document.querySelector('#chat-log');
+            chatLog.innerHTML += `<div>${data.message}</div>`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const inputElem = document.querySelector('#chat-message-input');
+            const message = inputElem.value;
+            if (message.trim() !== '') {
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                inputElem.value = '';
+            }
+        };
+    </script>
+</body>
+</html>
